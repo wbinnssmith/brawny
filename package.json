@@ -1,0 +1,26 @@
+{
+  "name": "brawny",
+  "version": "1.0.0",
+  "description": "A friendly logger api",
+  "main": "lib/index.js",
+  "scripts": {
+    "dist": "browserify -d ./src/index.js -t babelify -s brawny -o dist/brawny.js",
+    "lib": "babel src -d lib",
+    "test": "babel-node test/**.js",
+    "prepublish": "npm test && npm run lib && npm run dist"
+  },
+  "author": "Will Binns-Smith <wbinnssmith@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel": "^5.8.3",
+    "babelify": "^6.1.3",
+    "browserify": "^11.0.0",
+    "sinon": "1.7.3",
+    "tape": "^4.0.1"
+  },
+  "dependencies": {
+    "async-each": "^0.1.6",
+    "lodash.isfunction": "^3.0.6",
+    "lodash.isstring": "^3.0.1"
+  }
+}
