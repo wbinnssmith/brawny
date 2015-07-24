@@ -1,6 +1,6 @@
 {
   "name": "brawny",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A friendly logger api",
   "main": "lib/index.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "logs",
     "error reporting",
     "console"
-   ],
+  ],
   "devDependencies": {
     "babel": "^5.8.3",
     "babelify": "^6.1.3",
