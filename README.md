@@ -21,14 +21,16 @@ Brawny is distributed as a UMD module, so you can:
 
 Here's an example:
 
-     var brawny = require('brawny'); var brawnyConsole =
-     require('brawny/lib/transports/console');
+```javascript
+var brawny = require('brawny');
+var brawnyConsole = require('brawny/lib/transports/console');
 
-     brawny.use(brawnyConsole);
+brawny.use(brawnyConsole);
 
-     brawny.log('this will be sent to console.log'); brawny.error('this will
-     be sent to console.log'); brawny.warn('this will be sent to
-     console.log');
+brawny.log('this will be sent to console.log');
+brawny.error('this will be sent to console.error');
+brawny.warn('this will be sent to console.warn');
+```
 
 Brawny uses different "transports" for its various backends. A transport is a
 simple function that receives your log message and optional metadata and log
