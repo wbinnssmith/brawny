@@ -1,26 +1,24 @@
+import assign from 'lodash.assign';
+import { EventEmitter } from 'events';
 import isFunction from 'lodash.isfunction';
 import isPromise from 'is-promise';
 import forEach from 'async-each';
-
-const levelMap = {
-  debug: 10,
-  info: 20,
-  warn: 30,
-  error: 40
-}
+import levelMap from './level-map';
 
 /**
  * @class
  * @property {string} level The minimum level messages must be to be logged by this logger.
  */
-class Logger {
+class Logger extends EventEmitter {
   /**
    * @constructor
    * @param {object} [options] Constructor options.
    * @param {string} [options.level] This logger's desired level. Must be one of
    *                                 'debug', 'info', 'warn', or 'error'. Defaults to 'info'.
    */
-  constructor(options={}) {
+  constructor(name, options={}) {
+    super();
+    this.name = name;
     this.level = options.level || 'info';
 
     this._names = [];
@@ -60,7 +58,7 @@ class Logger {
    * @param {object} [meta]       Optional metadata to be sent to the logging transport.
    * @param {function} done       Asyncronous completion callback. Invoked once all logging transports have completed.
    */
-  log(level, msg, meta={}, done) {
+  log(level, msg, meta, done) {
     if (!(level in levelMap)) {
       // assume level was left off; shift by one
       return this.log('info', level, msg, meta);
@@ -69,20 +67,29 @@ class Logger {
     if(isFunction(meta)) {
       // assume meta was left off; shift and set empty meta
       done = meta;
-      meta = {};
     }
+
+    const logMeta = assign({}, meta, {
+      time: Date.now()
+    });
 
     forEach(this._names, (name, next) => {
       const transport = this._transports[name];
+      const transportLevel = transport.level || 'debug';
 
       // Only log if we're asked to log something equally or
-      // more important than this Logger's level
-      if (levelMap[level] >= levelMap[this.level]) {
-        transport.log(level, msg, meta, next);
+      // more important than this Logger/Transport's level
+      if (levelMap[level] >= levelMap[this.level]
+          && levelMap[level] >= levelMap[transportLevel]) {
+        transport.log(level, msg, logMeta, next);
       } else {
         next();
       }
-    }, done);
+    }, () => {
+      this.emit('log', level, msg, meta);
+      this.emit(`log:${level}`, msg, meta);
+      done && done();
+    });
 
     return this;
   }
@@ -141,7 +148,6 @@ class Logger {
    * Wraps the provided function by returning a new function wrapped in `try()`
    *
    * @param {function|promise} fn       Synchronously throwing function or promise-returning function.
-   *
    *                                    Be sure to use Function.prototype.bind if you intend to maintain function context.
    *
    * @param {string|object} msg         The message to be logged. Can be a string or a JSON-stringifyable object.
@@ -192,7 +198,10 @@ class Logger {
   }
 }
 
-const defaultLogger = new Logger();
-defaultLogger.Logger = Logger;
+const brawny = new Logger('default');
+brawny.Logger = Logger;
+brawny.create = function(...args) {
+  return new Logger(...args);
+}
 
-export default defaultLogger;
+export default brawny;
