@@ -191,7 +191,7 @@ class Logger extends EventEmitter {
   }
 
   /**
-   * Alais for `error()`
+   * Alias for `error()`
    */
   exception(...args) {
     return this.error(...args);

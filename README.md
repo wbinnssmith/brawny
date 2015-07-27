@@ -6,6 +6,30 @@ inspired by) than other logging solutions, like
 [winston](https://github.com/winstonjs/winston) or
 [bunyan](https://github.com/trentm/node-bunyan).
 
+Brawny uses different "transports" for its various backends. A transport is a
+plugin that receives your log message and optional metadata and log
+level, and then logs the message on your behalf.  Logs are processed
+asynchronously (this is a nice common denominator for transports that send
+data via xhr, etc.), and you can optionally be notified when your message has
+been logged.
+
+brawny comes with a many backends, including a basic console backend, but is made with extensibility in
+mind. Imagine sending logs to an HTTP endpoint, or directly to your favorite error
+reporting service.
+
+Here's a quick example:
+
+```javascript
+var brawny = require('brawny');
+var console_ = require('brawny/lib/transports/console');
+
+brawny.use(console_);
+
+brawny.log('this will be sent to console.log');
+brawny.error('this will be sent to console.error');
+brawny.warn('this will be sent to console.warn');
+```
+
 ## Installation
 
 Simply `npm install brawny`.
@@ -14,172 +38,59 @@ Simply `npm install brawny`.
 
 install with npm and then:
 
-* `require('brawny')` in browserify, webpack, node, or iojs
+`var brawny = require('brawny')` in browserify, webpack, node, or iojs
 
-Here's an example:
+requiring brawny yields a default logger with a factory attached to create additional loggers.
 
-```javascript
-var brawny = require('brawny');
-var brawnyConsole = require('brawny/lib/transports/console');
+### `brawny.create('myapp', opts={level: 'info'})`
 
-brawny.use(brawnyConsole);
+Creates a new brawny logger with the specified name. `opts` defaults to using
+a logger level of info.
 
-brawny.log('this will be sent to console.log');
-brawny.error('this will be sent to console.error');
-brawny.warn('this will be sent to console.warn');
-```
+### `brawny.level`
 
-Brawny uses different "transports" for its various backends. A transport is a
-simple function that receives your log message and optional metadata and log
-level, and then logs the message on your behalf.  Logs are processed
-asynchronously (this is a nice common denominator for transports that send
-data via xhr, etc.), and you can optionally be notified when your message has
-been logged.
+Public property representing the logger's level. Change this to alter the logger's verbosity.
 
-brawny comes with a basic console backend, but is made with extensibility in
-mind. Imagine sending logs to an HTTP endpoint, or your favorite error
-reporting service.
+### `brawny.use(transport)`
 
-<!-- START docme generated API please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN docme TO UPDATE -->
+Add a transport plugin to this logger. Any log messages that meet this logger's
+level will be forwarded to all transports.
 
-<div>
-<div class="jsdoc-githubify">
-<section>
-<article>
-<div class="container-overview">
-<dt>
-<h4 class="name" id="Logger"><span class="type-signature"></span>new Logger<span class="signature">()</span><span class="type-signature"></span></h4>
-</dt>
-<dd>
-<dl class="details">
-<h5 class="subsection-title">Properties:</h5>
-<dl>
-<table class="props">
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th class="last">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="name"><code>level</code></td>
-<td class="type">
-<span class="param-type">string</span>
-</td>
-<td class="description last"><p>The minimum level messages must be to be logged by this logger.</p></td>
-</tr>
-</tbody>
-</table></dl>
-<dt class="tag-source">Source:</dt>
-<dd class="tag-source"><ul class="dummy">
-<li>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js">index.js</a>
-<span>, </span>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js#L37">lineno 37</a>
-</li>
-</ul></dd>
-</dl>
-</dd>
-</div>
-<dl>
-<dt>
-<h4 class="name" id="error"><span class="type-signature"></span>error<span class="type-signature"></span></h4>
-</dt>
-<dd>
-<div class="description">
-<p>Alais for <code>error()</code></p>
-</div>
-<dl class="details">
-<dt class="tag-source">Source:</dt>
-<dd class="tag-source"><ul class="dummy">
-<li>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js">index.js</a>
-<span>, </span>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js#L266">lineno 266</a>
-</li>
-</ul></dd>
-</dl>
-</dd>
-<dt>
-<h4 class="name" id="log"><span class="type-signature"></span>log<span class="type-signature"></span></h4>
-</dt>
-<dd>
-<div class="description">
-<p>Shortcut for <code>log('debug', ...)</code></p>
-</div>
-<dl class="details">
-<dt class="tag-source">Source:</dt>
-<dd class="tag-source"><ul class="dummy">
-<li>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js">index.js</a>
-<span>, </span>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js#L218">lineno 218</a>
-</li>
-</ul></dd>
-</dl>
-</dd>
-<dt>
-<h4 class="name" id="log"><span class="type-signature"></span>log<span class="type-signature"></span></h4>
-</dt>
-<dd>
-<div class="description">
-<p>Shortcut for <code>log('info', ...)</code></p>
-</div>
-<dl class="details">
-<dt class="tag-source">Source:</dt>
-<dd class="tag-source"><ul class="dummy">
-<li>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js">index.js</a>
-<span>, </span>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js#L231">lineno 231</a>
-</li>
-</ul></dd>
-</dl>
-</dd>
-<dt>
-<h4 class="name" id="log"><span class="type-signature"></span>log<span class="type-signature"></span></h4>
-</dt>
-<dd>
-<div class="description">
-<p>Shortcut for <code>log('warn', ...)</code></p>
-</div>
-<dl class="details">
-<dt class="tag-source">Source:</dt>
-<dd class="tag-source"><ul class="dummy">
-<li>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js">index.js</a>
-<span>, </span>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js#L244">lineno 244</a>
-</li>
-</ul></dd>
-</dl>
-</dd>
-<dt>
-<h4 class="name" id="log"><span class="type-signature"></span>log<span class="type-signature"></span></h4>
-</dt>
-<dd>
-<div class="description">
-<p>Shortcut for <code>log('error', ...)</code></p>
-</div>
-<dl class="details">
-<dt class="tag-source">Source:</dt>
-<dd class="tag-source"><ul class="dummy">
-<li>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js">index.js</a>
-<span>, </span>
-<a href="https://github.com/wbinnssmith/brawny/blob/master/index.js#L257">lineno 257</a>
-</li>
-</ul></dd>
-</dl>
-</dd>
-</dl>
-</article>
-</section>
-</div>
+### `brawny.log(level, msg, meta, done)`
 
-*generated with [docme](https://github.com/thlorenz/docme)*
-</div>
-<!-- END docme generated API please keep comment here to allow auto update -->
+Send a JSON-stringifyable message `msg` to all of this logger's transports if the message's loglevel exceeds both
+the logger's level and the transport's level. For instance, if a `warn` message is sent to a logger
+with level `info` with two transports in use, one with a `warn` level and the other with an `error`
+level, the message will only be sent to the `warn` transport.
+
+It is highly recommended to send an `Error` object as the message when invoking `brawny.error()`. This way,
+transports that report exceptions can send along a stacktrace of where the error occurred.
+
+Metadata `meta` will be sent to each transport, and it is up to the transport to use it.
+
+Asynchronously calls callback `done` once all relevant transports have completed logging.
+
+### `brawny.try(toTry, meta, done)`
+
+Immediately calls the provided function `toTry` in a `try...catch` and send any errors to this logger's
+`error()` handler. `toTry` may also be a Promise, where its rejection would be handled by the `error()` handler
+as well. Additionally, if `toTry` is a function that returns a Promise, that promise's rejection will also be
+handled.
+
+Be sure to use Function.prototype.bind if you intend to maintain function context.
+
+*All thrown exceptions and promise rejections are re-raised!*
+
+Asynchronously calls callback `done` once all relevant transports have completed logging.
+*`done()` will not be invoked if no error ocurred.*
+
+### `brawny.wrap(fn, meta, done)`
+
+Wraps the provided function by returning a new function wrapped in `try()`
+Be sure to use Function.prototype.bind if you intend to maintain function context.
+
+### `brawny.debug()` / `brawny.info()` / `brawny.warn()` / `brawny.error()`
+These are all shortcuts for `brawny.log(level, ...)` for their respective log levels.
+
+### `brawny.exception()`
+Alias for `brawny.error()`
