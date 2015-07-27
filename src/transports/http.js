@@ -2,7 +2,7 @@ import Transport from './transport';
 import toFactory from 'to-factory';
 import throttle from 'lodash.throttle';
 import nets from 'nets';
-import assign from 'lodash.assign';
+import extend from 'xtend';
 
 class HTTPTransport extends Transport {
   get name() {
@@ -13,7 +13,7 @@ class HTTPTransport extends Transport {
     super();
     this.level = opts.level || 'info';
     this.endpoint = endpoint;
-    this.headers = assign(opts.headers, {
+    this.headers = extend({}, opts.headers, {
       'Content-Type': 'application/json'
     });
 

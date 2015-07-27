@@ -1,4 +1,4 @@
-import assign from 'lodash.assign';
+import extend from 'xtend';
 import { EventEmitter } from 'events';
 import isFunction from 'lodash.isfunction';
 import isPromise from 'is-promise';
@@ -69,7 +69,7 @@ class Logger extends EventEmitter {
       done = meta;
     }
 
-    const logMeta = assign({}, meta, {
+    const logMeta = extend({}, meta, {
       time: Date.now()
     });
 
