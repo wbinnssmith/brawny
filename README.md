@@ -45,7 +45,8 @@ requiring brawny yields a default logger with a factory attached to create addit
 ### `brawny.create('myapp', opts={level: 'info'})`
 
 Creates a new brawny logger with the specified name. `opts` defaults to using
-a logger level of info.
+a logger level of info. Add `meta: {custom: 'data'}` to `opts` to forward custom
+logger-level data to all transports.
 
 ### `brawny.level`
 
@@ -70,11 +71,19 @@ Metadata `meta` will be sent to each transport, and it is up to the transport to
 
 Asynchronously calls callback `done` once all relevant transports have completed logging.
 
+### `brawny.debug()` / `brawny.info()` / `brawny.warn()` / `brawny.error()`
+These are all shortcuts for `brawny.log(level, ...)` for their respective log levels.
+
+### `brawny.exception()`
+Alias for `brawny.error()`
+
 ### `brawny.try(toTry, meta, done)`
 
 Immediately calls the provided function `toTry` in a `try...catch` and send any errors to this logger's
 `error()` handler. `toTry` may also be a Promise, where its rejection would be handled by the `error()` handler
-as well. Additionally, if `toTry` is a function that returns a Promise, that promise's rejection will also be
+as well.
+
+If `toTry` is a function that returns a Promise, that promise's rejection will also be
 handled.
 
 Be sure to use Function.prototype.bind if you intend to maintain function context.
@@ -84,13 +93,89 @@ Be sure to use Function.prototype.bind if you intend to maintain function contex
 Asynchronously calls callback `done` once all relevant transports have completed logging.
 *`done()` will not be invoked if no error ocurred.*
 
+Some examples:
+
+     brawny.try(function () {
+          throw new Error('oh noes!!!')
+     }, function () {
+          // at this point, all transports were notified of
+          // the error.
+     });
+
+or with a rejected Promise:
+
+     brawny.try(fetch('http://doesnotexist.com/foobar'));
+
+... and brawny will report any errors.
+
 ### `brawny.wrap(fn, meta, done)`
 
 Wraps the provided function by returning a new function wrapped in `try()`
 Be sure to use Function.prototype.bind if you intend to maintain function context.
 
-### `brawny.debug()` / `brawny.info()` / `brawny.warn()` / `brawny.error()`
-These are all shortcuts for `brawny.log(level, ...)` for their respective log levels.
+### `brawny.on('log', cb)`
 
-### `brawny.exception()`
-Alias for `brawny.error()`
+where cb is a callback of the form
+
+     function (level, msg, meta) {}
+
+Brawny loggers are also event emitters. Pass a callback `cb` to receive events any time
+a log message is sent. `cb` will be yielded the arguments as above.
+
+### `brawny.on('log:info', cb)` (or 'log:warn', 'log:error', etc.)
+
+where cb is a callback of the form
+
+     function (msg, meta) {}
+
+Pass a callback `cb` to receive events any time a log message of the level desired is sent.
+`cb` will be yielded the arguments as above.
+
+## Available transports
+
+Brawny ships with a number of transports:
+
+### console
+
+     var console_ = require('brawny/lib/transports/console');
+     brawny.use(console_);
+
+Sends the various log level messages to the built-in `console`.
+
+### debug
+
+     var debug = require('brawny/lib/transports/debug');
+     brawny.use(debug('app'));
+
+Sends `debug`-level messages to the fantastic [debug module](https://github.com/visionmedia/debug).
+Messages are nicely colorized both in node and the browser.
+
+### http
+
+     var http = require('brawny/lib/transports/http');
+     brawny.use(http('http://myapp.com/events'));
+
+Buffers logging messages and sends them in batches as HTTP POSTs to the provided endpoint.
+Payloads are of the following JSON form:
+
+     {
+          "events": [
+               {level: "info", msg: "This is a sample message", meta: {"time": 1437981530865}}
+               {level: "error", msg: "This is a sample error", meta: {"time": 1437981530869}}
+          ]
+     }
+
+### raven-js (browser-only)
+
+     // This is typical use of raven-js
+     Raven.configure('endpoing', ...);
+
+     var brawnyRaven = require('brawny/lib/transports/raven');
+     brawny.use(brawnyRaven(window.Raven));
+
+Once you've configured Raven, use it to create a brawny transport. Non-error log levels will be sent using Raven's
+`captureMessage`, while calls to `brawny.error()` will use Raven's `captureError`, sending a complete stacktrace.
+
+Works great with `brawny.try()` to automatically capture errors and send them to raven.
+
+Currently browser-only.

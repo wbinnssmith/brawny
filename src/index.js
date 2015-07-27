@@ -20,6 +20,7 @@ class Logger extends EventEmitter {
     super();
     this.name = name;
     this.level = options.level || 'info';
+    this.meta = options.meta || {};
 
     this._names = [];
     this._transports = {};
@@ -69,7 +70,7 @@ class Logger extends EventEmitter {
       done = meta;
     }
 
-    const logMeta = extend({}, meta, {
+    const logMeta = extend({}, meta, this.meta, {
       time: Date.now()
     });
 
