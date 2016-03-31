@@ -1,4 +1,7 @@
-# Brawny: A friendly-faced logger.
+<p align='center'>
+  <img src='https://cloud.githubusercontent.com/assets/755844/14168582/f654061c-f6d7-11e5-99ee-134fe3043eb1.png' width='256'/>
+  <p align='center'>A friendly-faced logger for node and the browser</p>
+</p>
 
 Brawny is a generic logging frontend with a set of pluggable backends, for
 node and the browser.  It's intended to be far simpler (but is certainly
@@ -179,3 +182,5 @@ Once you've configured Raven, use it to create a brawny transport. Non-error log
 Works great with `brawny.try()` to automatically capture errors and send them to raven.
 
 Currently browser-only.
+
+Logs graphic from Callum Taylor from the Noun Project.
